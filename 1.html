@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="utf-8">
+    <title>JS</title>
+</head>
+
+<body>
+<div id="catalogue"></div>
+<div id="basket"></div>
+<div id="delivery"></div>
+<div id="comment"></div>
+
+<script>
+    let basket = [];
+    const products = [
+        {id: 1, name: 'strawberry', price: 250, count: 1},
+        {id: 2, name: 'grapefruit', price: 130, count: 1},
+        {id: 3, name: 'apple', price: 15, count: 1},
+        {id: 4, name: 'mango', price: 200, count: 1},
+    ];
+
+    let addEvent = (buy) => {
+        let btn = document.querySelectorAll('.' + buy);
+        btn.forEach(el => {
+            el.addEventListener('click', (eventBuy) => {
+                console.log(el);
+
+                let checkProduct = basket.find(item => item.id == eventBuy.target.dataset.id);
+
+                if (checkProduct === undefined) {
+                    let product = products.find(item => item.id == eventBuy.target.dataset.id);
+                    basket.push(product);
+                    basketPut();
+
+                } else {
+                    checkProduct.count = checkProduct.count + 1;
+                    basketPut();
+                }
+            })
+        })
+    }
+
+    let clear = (clearBasket) => {
+        let btnClr = document.querySelectorAll('.' + clearBasket);
+        btnClr.forEach(el => {
+            el.addEventListener('click', (eventClr) => {
+                let checkProduct = basket.find(item => item.id == eventClr.target.dataset.id);
+                if (checkProduct.count === 1) {
+                    let product = basket.findIndex(item => item.id == eventClr.target.dataset.id);
+                    basket.splice(product, 1);
+                    basketPut();
+                } else {
+                    checkProduct.count = checkProduct.count - 1;
+                    basketPut();
+                }
+                if (basket.length === 0) {
+                    let openDetails = document.getElementById('openBasket');
+                    openDetails.removeAttribute("open");
+                }
+            })
+        })
+    }
+
+    let deliv = (turnBasket) => {
+        let btnDeliveryDetails = document.querySelectorAll('.' + turnBasket);
+        btnDeliveryDetails.forEach(el =>
+            el.addEventListener('click', () => {
+                let openDetails = document.getElementById('openBasket');
+                openDetails.removeAttribute("open");
+                let openDeliv = document.getElementById('address');
+                openDeliv.setAttribute("open", "");
+            }))
+    }
+
+    let comm = (deliveryBtn) => {
+        let btnCommentDetails = document.querySelectorAll('.' + deliveryBtn);
+        btnCommentDetails.forEach(el =>
+            el.addEventListener('click', () => {
+                let openDetails = document.getElementById('address');
+                openDetails.removeAttribute("open");
+                let openComm = document.getElementById('comm');
+                openComm.setAttribute("open", "");
+            }))
+    }
+
+    function catalogue() {
+        const $catalogue = document.getElementById('catalogue');
+        let $block = '';
+        for (let i = 0; i < products.length; i++) {
+            $block += `
+            <div>
+            <h2>${products[i].name}</h2>
+            <p>${products[i].price}</p>
+            <p><button data-id='${products[i].id}' class='buy'>Купить</button></p>
+            </div>
+            `
+        }
+        document.getElementById('catalogue').innerHTML = $block;
+        addEvent('buy');
+    }
+
+    function basketPut() {
+        let $basket = document.getElementById('basket');
+        let $put = '';
+        let $smtg = '<div>\n <details id="openBasket" open><summary>Корзина</summary>';
+        let $smthng = '<p><button class="turnBasket">Далее</button></p>\n </details>\n </div>';
+        if (basket.length > 0) {
+            for (let k = 0; k < basket.length; k++) {
+                $put += `
+            <p>Name: ${basket[k].name}</p>
+            <p>Price: ${basket[k].price}</p>
+            <p class="basketCount">Count: ${basket[k].count}</p>
+            <p>Sum: ${basket[k].count * basket[k].price}</p>
+            <p><button data-id='${basket[k].id}' class="clearBasket">Удалить продукт</button></p>
+            `
+            }
+        } else {
+            $put = `
+            <div>Корзина Пуста</div>
+            `
+        }
+        document.getElementById('basket').innerHTML = $smtg + $put + $smthng;
+        clear('clearBasket');
+        deliv('turnBasket');
+    }
+
+    function delivery() {
+        const $delivery = document.getElementById('delivery');
+        let $inputs = `
+            <div>
+            <details id="address"><summary>Доставка</summary>
+            <p><input type="text" value="" placeholder="Адрес"></p>
+            <p><button class='deliveryBtn'>Далее</button></p>
+            </details>
+            </div>
+            `
+        document.getElementById('delivery').innerHTML = $inputs;
+        comm('deliveryBtn');
+    }
+
+    function comment() {
+        const $comment = document.getElementById('comment');
+        let $input = `
+            <div>
+            <details id="comm"><summary>Комментарий</summary>
+            <p><textarea cols="20" rows="10" placeholder="Комментарий"></textarea></p>
+            <p><button data-id=''> Далее</button></p>
+            </details>
+            </div>
+            `
+        document.getElementById('comment').innerHTML = $input;
+    }
+
+    catalogue();
+
+    basketPut();
+
+    delivery();
+
+    comment();
+
+</script>
+</body>
+</html>
